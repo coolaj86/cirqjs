@@ -3,22 +3,48 @@ CirQ
 
 A simple Circular Buffer / Queue with great test coverage.
 
-    var CirQ = require('cirq')
-      , maxLength = 1
-      , cirq = new CirQ(maxLength)
-      , assert = require('assert')
-      ;
+A circular queue is basically an array that grows to a certain
+size as you `.push(thing)` and then begins overwriting the
+old things if they haven't been `.shift()`d yet.
 
-    // the default maxLength is `4294967295`, which is `Math.pow(2,32) - 1);`
-    // this is the maximum safe integer value
-    cirq.push('a');
-    cirq.push('b');
+Because everything in JavaScript is an Object, including Arrays,
+you might prematurely conclude (as did I) that the work that
+an Array has to do to perform `.shift()`
+(i.e. that it has to rename key every element in the Array Object)
+might be too slow for your application.
 
-    assert.deepEqual(['b'], cirq.toArray());
+If so, you're probably wrong (as was I)...
+unless, of course, you're storing > 250,000 things in your in-memory queue
+(which I happen to know you aren't)
 
-    assert.strictEqual('b', cirq.pop());
+Installation
+===
 
-    assert.deepEqual([], cirq.toArray());
+```bash
+git clone https://github.com/coolaj86/cirqjs.git
+```
+
+Usage
+===
+
+```javascript
+var CirQ = require('cirq')
+  , maxLength = 1
+  , cirq = new CirQ(maxLength)
+  , assert = require('assert')
+  ;
+
+// the default maxLength is `4294967295`, which is `Math.pow(2,32) - 1);`
+// this is the maximum safe integer value
+cirq.push('a');
+cirq.push('b');
+
+assert.deepEqual(['b'], cirq.toArray());
+
+assert.strictEqual('b', cirq.pop());
+
+assert.deepEqual([], cirq.toArray());
+```
 
 API
 ===
@@ -59,6 +85,20 @@ Despite rumors, `[].shift()` is probably efficient enough (until about 500,000 e
 
       console.log();
     }
+
+Benchmark
+===
+
+The first number is **how many items the queue may hold**
+before it starts overwriting itself.
+
+The second number is how many items over the max to insertor,
+in other words, **how many times we cause the queue to rekey itself**.
+
+The first time is how long it took to fill the queue.
+
+The second time is how long it took to rekey the queue n times
+(the 2nd number mentioned above).
 
 CirQ
 
